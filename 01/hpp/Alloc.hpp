@@ -1,11 +1,5 @@
 #include <iostream>
 
-enum ERROR {
-    ERR_BAD_SIZE,
-    ERR_NULL_HEAP,
-    ERR_NO_HEAP_MEM
-};
-
 class Allocator {
 private:
     size_t MaxSize;
