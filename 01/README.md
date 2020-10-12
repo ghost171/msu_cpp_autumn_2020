@@ -24,8 +24,8 @@ There is a constructor. Here we have to prepare our values to work. As a deafaul
 In this function we have to find place to our StartPointer. We use key-word new for this. 
 As addition we have to check, is it 0? Because, it is we have to give a user nullptr, as we can't allocate memory size 0.
 Also, assign our variables to appropriate values.
-
-  ```void Allocator::MakeAllocator(size_t maxSize) {
+```
+  void Allocator::MakeAllocator(size_t maxSize) {
       if (maxSize == 0) {
           StartPointer = nullptr;
       } else {
@@ -33,14 +33,14 @@ Also, assign our variables to appropriate values.
       }
       Offset = 0;
       MaxSize = maxSize;
-  }```
-  
+  }
+```
 ### char *Allocator::Alloc (size_t size)
 We have to shift there on size value. We have to plus our offset to size and shift out StartPointer to size value.
 But before it, we have to check two important cases: When the given StartPointer is nullptr (user can forgets to make his/her allocator or just give us nullptr specially).
 And another case is when we want allocate more memory than our maximum size memory was allocated in MakeAllocator. In this case we ruturn nullptr.
-
- ```char *Allocator::Alloc (size_t size) {
+```
+ char *Allocator::Alloc (size_t size) {
       if (!StartPointer) {
           cout << "You give empty Pointer. Please allocate memory in MakeAllocator()." << endl;
           return nullptr;
@@ -51,30 +51,30 @@ And another case is when we want allocate more memory than our maximum size memo
       char *allocatedMemory = StartPointer + Offset;
       Offset += size;
       return allocatedMemory;
-  }```
-  
+  }
+```
 ### void Allocator::Reset() 
 
 In this function we just assign our Offset to 0. As i write earlier, we need it to get through this memory. 
-
-  ```void Allocator::Reset() {
+```
+  void Allocator::Reset() {
       Offset = 0;
-  }```
-  
+  }
+```
 ### Allocator::~Allocator() 
 This is destructor. In it we have to delete our StartPointer.
-
-  ```Allocator::~Allocator() {
+```
+  Allocator::~Allocator() {
       if (StartPointer) {
           delete[] StartPointer;
       }
-  }```
-  
-  ##Tests
+  }
+```
+##Tests
 My tests located at src/test.cpp, include cases of "few times use MakeAllocator", "empty Allocator", "more memory than we have" and another cases of this issue. 
 I implemented it in appropriate functions.
-
-  ```void test1() {
+```
+  void test1() {
       Allocator allocator1;
       allocator1.MakeAllocator(10);
       char *allocated = allocator1.Alloc(5);
@@ -143,7 +143,7 @@ I implemented it in appropriate functions.
       allocator7.MakeAllocator(0);
       char *allocated = allocator7.Alloc(7);
       assert(allocated == nullptr);
-  }```
-  
+  }
+```
 You can write tests by yourself. This program can throw the errors. If all tests in your occasion are accepted you see "All tests was accepted.OK" on your screen.
   
