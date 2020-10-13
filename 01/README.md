@@ -1,7 +1,16 @@
 # Allocator
 
 This is Allocator implemetation. 
-
+## How to execute the project
+You can clone this project with command.
+```
+  git clone https://github.com/ghost171/msu_cpp_autumn_2020/
+ ```
+And now you have files to start  the project. Now you have to do a make command to execute him:
+```
+  make test
+```
+ 
 ## Important values
 There 3 important values in programme. One of them is StartPointer. There is a pointer that points to your start place in memory. 
 It needs to have a place to start. 
