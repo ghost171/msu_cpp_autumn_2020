@@ -11,7 +11,10 @@ And now you have files to start  the project. Now you have to do a make command 
   cd msu_cpp_autumn_2020/01
   make test
 ```
- 
+Also, you can execute test just execute make:
+```
+  make
+ ```
 ## Important values
 There 3 important values in programme. One of them is StartPointer. There is a pointer that points to your start place in memory. 
 It needs to have a place to start. 
