@@ -25,6 +25,10 @@ char *Allocator::Alloc (size_t size) {
 }
 
 void Allocator::MakeAllocator(size_t maxSize) {
+    if (!(StartPointer == nullptr)) {
+        cout << "You have entered not empty pointer here. You previous data was deleted." << endl;
+        delete[] StartPointer;
+    }
     if (maxSize == 0) {
         StartPointer = nullptr;
     } else {

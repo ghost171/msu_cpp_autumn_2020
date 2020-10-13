@@ -47,7 +47,7 @@ void test5() {
     allocated[1] = 'j';
     allocated[2] = '_';
     allocator5.MakeAllocator(5);
-    allocated = allocator5.Alloc(5); //in this case we have to make memory leak like in malloc()
+    allocated = allocator5.Alloc(5); 
     allocated[0] = '2';
     allocated[1] = 'i';
     allocated[2] = '+';
