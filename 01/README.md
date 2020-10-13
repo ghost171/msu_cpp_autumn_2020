@@ -8,6 +8,8 @@ You can clone this project with command.
  ```
 And now you have files to start  the project. Now you have to do a make command to execute him:
 ```
+  cd /msu_cpp_autumn_2020/01
+  chmod +rwx /bin/test
   make test
 ```
  
