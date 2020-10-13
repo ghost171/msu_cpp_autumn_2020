@@ -1,5 +1,5 @@
-%:	src/Alloc.cpp	src/%.cpp
+bin/test: src/Alloc.cpp src/test.cpp
+	g++ src/Alloc.cpp src/test.cpp -o bin/test -std=c++17
 
-	g++		src/Alloc.cpp		src/$@.cpp		-o		bin/$@		-std=c++17
-
+test: bin/test
 	bin/test
