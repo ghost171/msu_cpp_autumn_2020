@@ -96,8 +96,8 @@ void test7() {
     Parser myParser;
     myParser.InputStringSet("           1234            mama        123412          mila12        12ramu         .             ");
     myParser.Tockenizer();
-    myParser.SetDigitTokenCallBack(ReturnLastNumber);
-    myParser.SetTextTokenCallBack(ReturnLastText);
+    myParser.SetDigitTokenCallBack(ReturnNumbers);
+    myParser.SetTextTokenCallBack(ReturnTexts);
     myParser.Classificate();
     assert(numbers[0] == "1234" && numbers[1] == "123412" && texts[0] == "mama" && texts[1] == "mila12" && texts[2] == "12ramu" && texts[3] == ".");
 }
