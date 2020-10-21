@@ -7,35 +7,35 @@
 
 using namespace std;
 
-void SumNumbers(string number) {
+void SumNumbers(const string& number) {
     sum += stoi(number);
 }
 
-void ConcatTexts(string text) {
+void ConcatTexts(const string& text) {
     concat += text;
 }
 
-void PrintNumber(string number) {
+void PrintNumber(const string& number) {
     cout << number << " ";
 }
 
-void PrintText(string text) {
+void PrintText(const string& text) {
     cout << text << " ";
 }
 
-void ReturnLastNumber(string number) {
+void ReturnLastNumber(const string& number) {
     lastNumber = number;
 }
 
-void ReturnLastText(string text) {
+void ReturnLastText(const string& text) {
     lastText = text;
 }
 
-void ReturnNumbers(string number) {
+void ReturnNumbers(const string& number) {
     numbers.push_back(number);
 }
 
-void ReturnTexts(string text) {
+void ReturnTexts(const string& text) {
     texts.push_back(text);
 }
 
@@ -43,7 +43,9 @@ void test1() {
     Parser myParser;
     myParser.InputStringSet("12 mother 23 sdsd 12and thefather13");
     myParser.Tockenizer();
-    myParser.Classificate(ConcatTexts, SumNumbers);
+    myParser.SetDigitTokenCallBack(SumNumbers);
+    myParser.SetTextTokenCallBack(ConcatTexts);
+    myParser.Classificate();
     assert(sum == 35 && concat == "mothersdsd12andthefather13");
 }
 
@@ -51,14 +53,14 @@ void test2() {
     Parser myParser;
     myParser.InputStringSet("");
     myParser.Tockenizer();
-
 } 
 
 void test3() {
     Parser myParser;
     myParser.InputStringSet("         1234");
     myParser.Tockenizer();
-    myParser.Classificate(ReturnLastText, ReturnLastNumber);
+    myParser.SetDigitTokenCallBack(ReturnLastNumber);
+    myParser.Classificate();
     assert(lastNumber == "1234");
 }
 
@@ -66,7 +68,8 @@ void test4() {
     Parser myParser;
     myParser.InputStringSet("1235");
     myParser.Tockenizer();
-    myParser.Classificate(ReturnLastText, ReturnLastNumber);
+    myParser.SetDigitTokenCallBack(ReturnLastNumber);
+    myParser.Classificate();
     assert(texts.empty() && lastNumber == "1235");
 }
 
@@ -75,7 +78,8 @@ void test5() {
     lastNumber = "";
     myParser.InputStringSet("           ");
     myParser.Tockenizer();
-    myParser.Classificate(ReturnLastText, ReturnLastNumber);
+    myParser.Classificate();
+
     assert(lastNumber == "" && lastText == "");
 }
 
@@ -83,7 +87,8 @@ void test6() {
     Parser myParser;
     myParser.InputStringSet("1236             ");
     myParser.Tockenizer();
-    myParser.Classificate(ReturnLastText, ReturnLastNumber);
+    myParser.SetDigitTokenCallBack(ReturnLastNumber);
+    myParser.Classificate();
     assert(lastNumber == "1236" && lastText == "");
 }
 
@@ -91,7 +96,9 @@ void test7() {
     Parser myParser;
     myParser.InputStringSet("           1234            mama        123412          mila12        12ramu         .             ");
     myParser.Tockenizer();
-    myParser.Classificate(ReturnTexts, ReturnNumbers);
+    myParser.SetDigitTokenCallBack(ReturnLastNumber);
+    myParser.SetTextTokenCallBack(ReturnLastText);
+    myParser.Classificate();
     assert(numbers[0] == "1234" && numbers[1] == "123412" && texts[0] == "mama" && texts[1] == "mila12" && texts[2] == "12ramu" && texts[3] == ".");
 }
 

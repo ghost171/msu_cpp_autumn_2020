@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <functional>
 #include <string>
 #include <vector>
 #include <utility>
@@ -21,10 +22,13 @@ private:
 public:
     Parser();
     ~Parser();    
+    using callback = std::function<void (const string&)>;
+    callback DigitTockenCallBack;
+    callback TextTockenCallBack;
     void Tockenizer();
-    void InputStringSet(string inputString);
-    void Classificate(void (*functionForText)(string number), void (*functionForNumber)(string number));
+    void InputStringSet(const string& inputString);
+    void Classificate();
     void ReadFromStream(istream& stream);
-    void SetDigitTokenCallBack(void (*PrintForDigit)(string digit));
-    void SetTextTokenCallback(void (*PrintForText)(string text));
+    void SetTextTokenCallBack(callback F);
+    void SetDigitTokenCallBack(callback F);
 };

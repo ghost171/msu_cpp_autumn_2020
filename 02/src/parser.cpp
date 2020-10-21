@@ -3,11 +3,12 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <functional>
 #include "../hpp/parser.hpp"
 
 using namespace std;
 
-void Parser::InputStringSet(string inputString) {
+void Parser::InputStringSet(const string& inputString) {
     InputString = inputString;
 }
 
@@ -37,32 +38,30 @@ void Parser::Tockenizer() {
     }
 }
 
-void Parser::SetTextTokenCallback(void (*PrintForText)(string number)) {
-    string text = NumberAndTextClasses.back().first;
-    PrintForText(text);
+void Parser::SetTextTokenCallBack(callback PrintForText) {
+    TextTockenCallBack = PrintForText;
 }
 
-void Parser::SetDigitTokenCallBack(void (*PrintForDigit)(string text)) {
-    string number = NumberAndTextClasses.back().first;
-    PrintForDigit(number);
+void Parser::SetDigitTokenCallBack(callback PrintForDigit) {
+    DigitTockenCallBack = PrintForDigit;
 }
 
-void Parser::Classificate(void (*functionForText)(string text), void (*functionForNumber)(string number)) {
-    for (auto word : Tockens) {
-        try {
-            for (auto letter : word) {
-                if (!isdigit(letter)) {
-                    NumberAndTextClasses.push_back(make_pair(word, TEXT));
-                    SetTextTokenCallback(functionForText);
-                    throw 1;
-                }
+void Parser::Classificate() {
+    bool flagForTexts;
+    for (auto& word : Tockens) { 
+        flagForTexts = false;
+        for (auto& letter : word) {
+            if (!isdigit(letter)) {
+                NumberAndTextClasses.push_back(make_pair(word, TEXT));
+                TextTockenCallBack(word);
+                flagForTexts = true;
+                break;
             }
         }
-        catch(int a) {
-            continue;
+        if (!flagForTexts) {
+            NumberAndTextClasses.push_back(make_pair(word, NUMBER));
+        DigitTockenCallBack(word);
         }
-        NumberAndTextClasses.push_back(make_pair(word, NUMBER));
-        SetDigitTokenCallBack(functionForNumber);
     }
 }
 
@@ -70,6 +69,6 @@ void Parser::ReadFromStream(istream& stream) {
     getline(stream, InputString);
 }
 
-Parser::Parser() : InputString(), Tockens() {};
+Parser::Parser() : InputString(), Tockens(), TextTockenCallBack(nullptr), DigitTockenCallBack(nullptr) {};
 
 Parser::~Parser() {}
