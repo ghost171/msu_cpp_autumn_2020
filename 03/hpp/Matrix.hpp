@@ -3,8 +3,8 @@
 
 class TMatrix {
 private:
-    const size_t Rows = 5;
-    const size_t Columns = 5;
+    size_t Rows = 5;
+    size_t Columns = 5;
     int **Matrix;
 
 public:
@@ -15,12 +15,13 @@ public:
         int RowOfTRow;
         TRow(TMatrix &parent, int row) : Parent(parent), RowOfTRow(row) {}
     public:
-        int &operator[](const int &col);
+        int &operator[](const int &col) const;
     };
     TMatrix &operator=(const TMatrix &secondMatrix);
-    void operator*=(const int &number);
+    TMatrix operator*=(const int &number);
     TMatrix operator+(TMatrix secondMatrix) const;
-    bool operator==(TMatrix secondMatrix);
+    bool operator==(TMatrix secondMatrix) const;
+    bool operator!=(TMatrix secondMatrix) const;
     TRow operator[](const int &row);
     TMatrix(const TMatrix &p2);
     TMatrix(size_t rows, size_t columns);

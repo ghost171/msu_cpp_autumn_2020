@@ -116,8 +116,8 @@ void test7() {
 
 void test8() {
     TMatrix matrixExample1(3, 4);
-    TMatrix matrixExample2(3, 4);
-    assert(!(matrixExample1 == matrixExample2));
+    TMatrix matrixExample2(4, 4);
+    assert(matrixExample1 != matrixExample2);
 }
 
 void test9() {
@@ -137,7 +137,7 @@ void test9() {
             matrixExample2[i][j] = 3;
         }
     }
-    assert((matrixExample1 == matrixExample2));
+    assert(matrixExample1 == matrixExample2);
 }
 
 void test10() {
@@ -150,6 +150,12 @@ void test10() {
         }
     }
     cout << endl << matrixExample1 << endl;
+}
+
+void test11() {
+    TMatrix matrixExample1(3, 4);
+    TMatrix matrixExample2(4, 3);
+    matrixExample2 = matrixExample1;
 }
 
 int main() {
@@ -182,6 +188,9 @@ int main() {
     cout << "OK" << endl;
     cout << "test10 ";
     test10();
+    cout << "OK" << endl;
+    cout << "test11 ";
+    test11();
     cout << "OK" << endl;
     return 0;
 }

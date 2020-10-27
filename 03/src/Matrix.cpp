@@ -8,13 +8,20 @@ TMatrix::TMatrix(const TMatrix &p2) : TMatrix(p2.Rows, p2.Columns) {
 }
 
 TMatrix &TMatrix::operator=(const TMatrix &secondMatrix) {
+    delete[] Matrix;
+    Rows = secondMatrix.Rows;
+    Columns = secondMatrix.Columns;
+    Matrix = new int *[Rows];
+    for (int i = 0; i < Rows; i++) {
+        Matrix[i] = new int[Columns];
+    }
     for (int i = 0; i < Rows; ++i)
         for (int j = 0; j < Columns; ++j)
             Matrix[i][j] = secondMatrix.Matrix[i][j];
     return *this;
 }
 
-int& TMatrix::TRow::operator[](const int &col) {
+int& TMatrix::TRow::operator[](const int &col) const {
     if(col >= Parent.GetColumns()) {
         throw std::out_of_range("OUT_OF_RANGE_ERROR.");
     }
@@ -38,12 +45,13 @@ ostream &operator<<(ostream &stream, TMatrix &OutMatrix) {
     return stream;
 }
 
-void TMatrix::operator*=(const int &number) {
+TMatrix TMatrix::operator*=(const int &number) {
     for (int i = 0; i < Rows; i++) {
         for (int j = 0; j < Columns; j++) {
             Matrix[i][j] *= number;
         }
     }
+    return *this;
 }
 
 size_t TMatrix::GetColumns() const {
@@ -59,12 +67,22 @@ TMatrix::TMatrix() {
     for (int i = 0; i < Rows; i++) {
         Matrix[i] = new int[Columns];
     }
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Columns; j++) {
+            Matrix[i][j] = 0;
+        }
+    }
 }
 
 TMatrix::TMatrix(size_t rows, size_t columns) : Rows(rows), Columns(columns) {
     Matrix = new int *[Rows];
     for (int i = 0; i < Rows; i++) {
         Matrix[i] = new int[Columns];
+    }
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Columns; j++) {
+            Matrix[i][j] = 0;
+        }
     }
 }
 
@@ -102,7 +120,7 @@ TMatrix TMatrix::operator+(TMatrix secondMatrix) const {
     return sumMatrix;
 }
 
-bool TMatrix::operator==(TMatrix secondMatrix) {
+bool TMatrix::operator==(TMatrix secondMatrix) const {
     if (Rows != secondMatrix.GetRows()) {
         return false;
     }
@@ -117,4 +135,21 @@ bool TMatrix::operator==(TMatrix secondMatrix) {
         }
     }
     return true;
+}
+
+bool TMatrix::operator!=(TMatrix secondMatrix) const {
+    if (Rows != secondMatrix.GetRows()) {
+        return true;
+    }
+    if (Columns != secondMatrix.GetColumns()) {
+        return true;
+    }
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Columns; j++) {
+            if (Matrix[i][j] != secondMatrix[i][j]) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
