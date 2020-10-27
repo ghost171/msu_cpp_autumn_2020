@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cassert>
 #include "../hpp/Matrix.hpp"
-#include <unistd.h>
 
 using namespace std;
 
@@ -155,7 +154,18 @@ void test10() {
 void test11() {
     TMatrix matrixExample1(3, 4);
     TMatrix matrixExample2(4, 3);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            matrixExample1[i][j] = 3;
+        }
+    }
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 3; j++) {
+            matrixExample2[i][j] = 6;
+        }
+    }
     matrixExample2 = matrixExample1;
+    assert(matrixExample2.GetColumns() == 4 && matrixExample2.GetRows() == 3 && matrixExample2[1][1] == 3);
 }
 
 int main() {
