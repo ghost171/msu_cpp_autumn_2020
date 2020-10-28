@@ -170,6 +170,11 @@ void test11() {
     assert(matrixExample2.GetColumns() == 4 && matrixExample2.GetRows() == 3 && matrixExample2[1][1] == 3);
 }
 
+void test12() {
+    TMatrix myMatrix(4, 4);
+    myMatrix = myMatrix;
+}
+
 int main() {
     cout << "test1 ";
     test1();
@@ -203,6 +208,9 @@ int main() {
     cout << "OK" << endl;
     cout << "test11 ";
     test11();
+    cout << "OK" << endl;
+    cout << "test12 ";
+    test12();
     cout << "OK" << endl;
     return 0;
 }
