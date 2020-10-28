@@ -8,20 +8,29 @@ TMatrix::TMatrix(const TMatrix &p2) : TMatrix(p2.Rows, p2.Columns) {
 }
 
 TMatrix &TMatrix::operator=(const TMatrix &secondMatrix) {
-    delete[] Matrix;
-    Rows = secondMatrix.Rows;
-    Columns = secondMatrix.Columns;
-    Matrix = new int *[Rows];
-    for (int i = 0; i < Rows; i++) {
-        Matrix[i] = new int[Columns];
+    if (this != &secondMatrix) {
+        delete[] Matrix;
+        Rows = secondMatrix.Rows;
+        Columns = secondMatrix.Columns;
+        Matrix = new int *[Rows];
+        for (int i = 0; i < Rows; i++) {
+            Matrix[i] = new int[Columns];
+        }
+        for (int i = 0; i < Rows; ++i)
+            for (int j = 0; j < Columns; ++j)
+                Matrix[i][j] = secondMatrix.Matrix[i][j];
     }
-    for (int i = 0; i < Rows; ++i)
-        for (int j = 0; j < Columns; ++j)
-            Matrix[i][j] = secondMatrix.Matrix[i][j];
     return *this;
 }
 
-int& TMatrix::TRow::operator[](const int &col) const {
+int& TMatrix::TRow::operator[](const int &col) {
+    if(col >= Parent.GetColumns()) {
+        throw std::out_of_range("OUT_OF_RANGE_ERROR.");
+    }
+    return Parent.Matrix[RowOfTRow][col];
+}
+
+const int& TMatrix::TRow::operator[](const int &col) const {
     if(col >= Parent.GetColumns()) {
         throw std::out_of_range("OUT_OF_RANGE_ERROR.");
     }

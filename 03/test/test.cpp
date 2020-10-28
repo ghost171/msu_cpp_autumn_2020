@@ -13,7 +13,9 @@ void test1() {
             myMatrix[i][j] = 3;
         }
     }
+    cout << "LOL" << endl;
     myMatrix *= 2;
+    cout << "LOL" << endl;
     TMatrix m2(myMatrix);
     m2 *= 5;
     TMatrix m3 = myMatrix + m2;

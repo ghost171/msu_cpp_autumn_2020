@@ -15,7 +15,8 @@ public:
         int RowOfTRow;
         TRow(TMatrix &parent, int row) : Parent(parent), RowOfTRow(row) {}
     public:
-        int &operator[](const int &col) const;
+        int &operator[](const int &col);
+        const int &operator[](const int &col) const;
     };
     TMatrix &operator=(const TMatrix &secondMatrix);
     TMatrix operator*=(const int &number);
