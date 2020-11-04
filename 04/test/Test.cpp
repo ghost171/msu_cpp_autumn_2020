@@ -10,8 +10,9 @@ void test1() {
 }
 
 void test2() {
-    TBigInt a("10241024");
-    assert(a == 10241024);
+    TBigInt a("1024");
+    TBigInt b;
+    assert(a == 1024);
 }
 
 void test3() {
@@ -44,7 +45,8 @@ void test6() {
 void test7() {
     TBigInt a = 20;
     TBigInt b = 40;
-    TBigInt c = a * b + 2;
+    TBigInt c = a * b;
+    c = c + 2;
     assert(c == 802);
 }
 
@@ -77,6 +79,18 @@ void test12() {
     TBigInt b = 78;
     TBigInt a(b);
     assert(a == 78);
+}
+
+void test13() {
+    TBigInt a = static_cast<int>(0);
+    cout << a;
+}
+
+void test14() {
+    TBigInt a("99999999999999999999999");
+    TBigInt b("99999999999999999999999");
+    TBigInt c = a * b;
+    cout << c << endl;
 }
 
 int main() {
@@ -115,6 +129,12 @@ int main() {
     cout << "OK" << endl;
     cout << "test12 ";
     test12();
+    cout << "OK" << endl;
+    cout << "test13 ";
+    test13();
+    cout << "OK" << endl;
+    cout << "test14 ";
+    test14();
     cout << "OK" << endl;
     return 0;
 }
