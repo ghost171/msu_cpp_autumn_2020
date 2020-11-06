@@ -32,7 +32,11 @@ TBigInt::TBigInt(const string &s) {
         for (long long int j = max(position, i - 8); j <= i; j++) {
             x = x * 10 + s[j] - '0';
         }
-        Buffer = static_cast<long long int *>(realloc(Buffer, (k + 1) * sizeof(long long int)));
+        if (Buffer == nullptr) {
+            Buffer = static_cast<long long int *>(malloc((k + 1) * sizeof(long long int)));    
+        } else {
+            Buffer = static_cast<long long int *>(realloc(Buffer, (k + 1) * sizeof(long long int)));
+        }
         Buffer[k] = x;
         Size = k + 1;
     }
@@ -45,10 +49,7 @@ TBigInt::TBigInt() {
 }
 
 bool TBigInt::operator<(const TBigInt &number) const {
-    if (Sign != number.Sign) {
-        return (Sign < number.Sign);
-    }
-    for (long long int i = Size - 1; i >= 0; i--) {
+    for (long long int i = Size; i >= 0; i--) {
         if (Buffer[i] != number.Buffer[i]) {
             return ((Buffer[i] * Sign) < (number.Buffer[i] * Sign));
         }
@@ -86,23 +87,34 @@ TBigInt::TBigInt(long long number) {
 
 TBigInt::TBigInt(const TBigInt &number) {
     Sign = number.Sign;
-    Buffer = static_cast<long long int *>(realloc(number.Buffer, number.Size * sizeof(long long int)));
+    if (Buffer != nullptr) {
+        Buffer = static_cast<long long int *>(realloc(number.Buffer, number.Size * sizeof(long long int)));
+    } else {
+        Buffer = static_cast<long long int *>(malloc(number.Size * sizeof(long long int)));
+    }
     for (long long int i = 0; i < number.Size; i++) {
         Buffer[i] = number.Buffer[i];
     }
     Size = number.Size;
 }
 
+
 TBigInt TBigInt::operator=(const TBigInt &number) {
-    Sign = number.Sign;
-    if (Buffer != nullptr) {
-        delete[] Buffer;
+    if (*this != number) {
+        Sign = number.Sign;
+        if (Buffer != nullptr) {
+            free(Buffer);
+        }
+        if (Buffer != nullptr) {
+            Buffer = static_cast<long long int *>(realloc(Buffer, number.Size * sizeof(long long int)));    
+        } else {
+            Buffer = static_cast<long long int *>(malloc(number.Size * sizeof(long long int)));    
+        }
+        for (long long int i = 0; i < number.Size; i++) {
+            Buffer[i] = number.Buffer[i];
+        }
+        Size = number.Size;
     }
-    Buffer = static_cast<long long int *>(realloc(Buffer, number.Size * sizeof(long long int)));
-    for (long long int i = 0; i < number.Size; i++) {
-        Buffer[i] = number.Buffer[i];
-    }
-    Size = number.Size;
     return *this;
 }
 
@@ -120,7 +132,11 @@ TBigInt TBigInt::operator=(long long number) {
     }
     for (;number > 0; number = number / Base) { 
         i++;
-        Buffer = static_cast<long long int *>(realloc(Buffer, i * sizeof(long long int)));
+        if (Buffer == nullptr) {
+            Buffer = static_cast<long long int *>(malloc(i * sizeof(long long int)));    
+        } else {
+            Buffer = static_cast<long long int *>(realloc(Buffer, i * sizeof(long long int)));
+        }
         Buffer[i - 1] = number % Base;
     }
     Size = i + 1;
@@ -132,22 +148,23 @@ TBigInt TBigInt::operator-() const {
     result.Sign = -Sign;
     return result;
 }
- 
+
 
 TBigInt TBigInt::operator+(TBigInt number) {
     if (Sign == number.Sign) {
-        TBigInt result = TBigInt(number);
+        TBigInt result = number;
         for (long long int i = 0, carry = 0; i < max(number.Size, Size) || carry; i++) {
             if (i == result.Size) {
                 result.Size++;
-                result.Buffer = static_cast<long long int *>(realloc(Buffer, (i + 1) * sizeof(long long int)));
+                if (result.Buffer == nullptr) {
+                    result.Buffer = static_cast<long long int *>(malloc((i + 1) * sizeof(long long int)));    
+                } else {
+                    result.Buffer = static_cast<long long int *>(realloc(Buffer, (i + 1) * sizeof(long long int)));
+                }
                 result.Buffer[i] = 0;
             }
             result.Buffer[i] += carry + (i < Size ? Buffer[i] : 0);
             carry = result.Buffer[i] >= Base;
-            if (carry) {
-                result.Buffer[i] -= Base;
-            }
         }
         return result;
     }
@@ -158,14 +175,13 @@ TBigInt TBigInt::operator-(TBigInt number) {
     if (Sign == number.Sign) {
         if (Abs() >= number.Abs()) {
             TBigInt result = *this;
-            for (long long int i = 0, carry = 0; i  < number.Size; i++) {
+            for (long long int i = 0, carry = 0; i  < number.Size || carry; i++) {
                 result.Buffer[i] -= carry + (i < number.Size ? number.Buffer[i] : 0);
                 carry = result.Buffer[i] < 0;
                 if (carry) {
                     result.Buffer[i] += Base;
                 }
             }
-            result.EraseToZeroes();
             return result;
         }    
         return -(number - *this);
@@ -183,6 +199,9 @@ void TBigInt::EraseToZeroes() {
     while (Buffer != nullptr && Buffer[Size - 1] != 0) {
         Buffer = static_cast<long long int *>(realloc(Buffer, (Size - 1) * sizeof(long long int)));
         Size--;
+        if (Size == 0) {
+            Buffer = nullptr;
+        }
     }
     if (Buffer == nullptr) {
         Sign = 1;
@@ -192,7 +211,11 @@ void TBigInt::EraseToZeroes() {
 TBigInt TBigInt::operator*(TBigInt number) {
     TBigInt result;
     result.Size = Size + number.Size;
-    result.Buffer = static_cast<long long int *>(realloc(result.Buffer, result.Size * sizeof(long long int)));
+    if (result.Buffer == nullptr) {
+        result.Buffer = static_cast<long long int *>(malloc(result.Size * sizeof(long long int)));    
+    } else {
+        result.Buffer = static_cast<long long int *>(realloc(result.Buffer, result.Size * sizeof(long long int)));
+    }
     for (long long int i = 0; i < Size; i++) {
         for (long long int j = 0, carry = 0; j < number.Size || carry; j++) {
             long long cur = result.Buffer[i + j] + static_cast<long long int>(Buffer[i]) * static_cast<long long int>(j < number.Size ? number.Buffer[j] : 0) + carry;
@@ -201,8 +224,15 @@ TBigInt TBigInt::operator*(TBigInt number) {
         }
     }
     while(result.Size > 1 && result.Buffer[Size - 1] == 0) {
-        result.Buffer = (long long int *)realloc(result.Buffer, (result.Size - 1) * sizeof(long long int));
+        if (result.Buffer == nullptr) {
+            result.Buffer = static_cast<long long int *>(malloc((result.Size - 1) * sizeof(long long int)));    
+        } else {
+            result.Buffer = (long long int *)realloc(result.Buffer, (result.Size - 1) * sizeof(long long int));
+        }
         result.Size--;
+        if (result.Size == 0) {
+            result.Buffer = nullptr;
+        }
     }
     if (Sign * number.Sign < 0) {
         result.Sign = -1;   

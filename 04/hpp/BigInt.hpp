@@ -5,10 +5,10 @@ using namespace std;
 
 class TBigInt {
 private:
-    long long int *Buffer;
     char Sign;
-    long long int Size;
     const static long long int Base = 1000000000;
+    long long int Size;
+    long long int *Buffer;
 public:
     TBigInt();
     TBigInt(long long number);  
@@ -31,7 +31,26 @@ public:
             }
         }
         for (long long int i = number.Size - 2; i >= 0; i--) {
-            out << number.Buffer[i];
+            int num = number.Buffer[i];
+            if (i != number.Size - 2) {
+                if (num != 0) {
+                    while(num % 10 == 0 && num != 0) {
+                        out << "0"; 
+                        num /= 10;
+                    }
+                    if (num == 1) {
+                        continue;
+                    }
+                } 
+            }
+            if ((num / 1000000000) == 1) {
+                cout << "000000000";
+                out << num % 100000000;
+                continue;
+            }
+            if (num != 1 && num != 0) {
+                out << num;
+            }
         }
         return out;
     }

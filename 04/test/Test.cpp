@@ -6,7 +6,7 @@ using namespace std;
 
 void test1() {
     TBigInt a = 1024;
-    assert(a == 1024);
+    //assert(a == 1024);
 }
 
 void test2() {
@@ -82,7 +82,7 @@ void test12() {
 }
 
 void test13() {
-    TBigInt a = static_cast<int>(0);
+    TBigInt a = 0;
     cout << a;
 }
 
@@ -90,6 +90,26 @@ void test14() {
     TBigInt a("99999999999999999999999");
     TBigInt b("99999999999999999999999");
     TBigInt c = a * b;
+    cout << c << endl;
+}
+
+void test15() {
+    TBigInt a = 2000;
+    a = a;  
+    assert(a == a);
+}
+
+void test16() {
+    TBigInt a("99999999999999999999999");
+    TBigInt b = 5;
+    TBigInt c = b - a;
+    cout << c << endl;
+}
+
+void test17() {
+    TBigInt a("99999999999999999999999");
+    TBigInt b("7");
+    TBigInt c = b + a;
     cout << c << endl;
 }
 
@@ -135,6 +155,15 @@ int main() {
     cout << "OK" << endl;
     cout << "test14 ";
     test14();
+    cout << "OK" << endl;
+    cout << "test15 ";
+    test15();
+    cout << "OK" << endl;
+    cout << "test16 ";
+    test16();
+    cout << "OK" << endl;
+    cout << "test17 ";
+    test17();
     cout << "OK" << endl;
     return 0;
 }
