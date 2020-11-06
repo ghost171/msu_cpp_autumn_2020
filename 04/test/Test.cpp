@@ -6,7 +6,7 @@ using namespace std;
 
 void test1() {
     TBigInt a = 1024;
-    //assert(a == 1024);
+    assert(a == 1024);
 }
 
 void test2() {
