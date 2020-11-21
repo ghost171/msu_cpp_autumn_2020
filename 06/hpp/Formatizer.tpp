@@ -1,17 +1,21 @@
 template<class T, class... Args>
-void format1(vector<string> &v, const T &input, Args... args) {
-    v.push_back(format_value(input));
-    format1(v, args...);
+void format1(vector<string> &v, const T &input, Args&&... args) {
+    stringstream ss;
+    ss << input;
+    string s;
+    std::getline (ss,s);
+    v.push_back(s);
+    format1(v, std::forward<Args>(args)...);
 }
 
 template<class T, class... Args>
-string format(const T &input, Args... args) {
+string format(const T &input, Args&&... args) {
     vector<string> v;
     format1(v, input, args...);
     string s = v[0];
     int k = 0;
     for (auto i = v.begin() + 1; i < v.end(); i++) {
-        string g = static_cast<string>(*i);
+        string g = *i;
         string h = "{" + to_string(k) + "}";
         while (true) {
             int index = s.find(h, 0);
@@ -31,9 +35,6 @@ string format(const T &input, Args... args) {
                 while(i < s.size() || s[i] == '}') {
                     i++;
                     a += s[i]; 
-                }
-                if (i == s.size()) {
-                    break;
                 }
                 if (a != "") {
                     throw Error("Error in replacing {}", __FILE__, __LINE__);

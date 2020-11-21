@@ -15,15 +15,12 @@ struct Error
     Error(const string& message, const char *fileName, int line) : message_(message), fileName_(fileName), line_(line) {}
 };
 
-string format_value(const string &v);
-string format_value(const int &v);
-string format_value(const double &v);
 void format1(vector<string> &v);
 
 template<class T, class... Args>
-void format1(vector<string> &v, const T &input, Args... args);
+void format1(vector<string> &v, const T &input, Args&&... args);
 
 template<class T, class... Args>
-string format(const T &input, Args... args);
+string format(const T &input, Args&&... args);
 
 #include "Formatizer.tpp"

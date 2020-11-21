@@ -1,6 +1,25 @@
 #include <iostream>
 #include <cassert>
+#include <iomanip>
 #include "../hpp/Formatizer.hpp"
+
+class Date
+{
+    int mo, da, yr;
+public:
+    Date(int m, int d, int y)
+    {
+        mo = m; da = d; yr = y;
+    }
+    friend ostream& operator<<(ostream& os, const Date& dt);
+};
+
+ostream& operator<<(ostream& os, const Date& dt)
+{
+    os << dt.mo << '/' << dt.da << '/' << dt.yr;
+    return os;
+}
+
 
 void test1() {
     auto text = format("{1}+{1} = {0}", 2, "one");
@@ -30,12 +49,19 @@ void test6() {
 
 void test7() {
     string text = format("{1}*{2}+{3}={0}","5", "two", 2, 1.0);
-    assert(text == "two*2+1.000000=5");
+    cout << text << endl;
+    assert(text == "two*2+1=5");
 }
 
 void test8() {
     string text = format("{1", 2);
     assert(text == "{1" );
+}
+
+void test9() {
+    Date dt(5, 6, 92);
+    string text = format("{0}", dt);
+    assert(text == "5/6/92");
 }
 
 int main() {
@@ -62,6 +88,9 @@ int main() {
     cout << "OK" << endl;
     cout << "test8 ";
     test8();
+    cout << "OK" << endl;
+    cout << "test9 ";
+    test9();
     cout << "OK" << endl;
     return 0;
 }
