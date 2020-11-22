@@ -1,15 +1,13 @@
 template<class T, class... Args>
-void format1(vector<string> &v, const T &input, Args&&... args) {
+void format1(vector<string> &v, const T &input, const Args&... args) {
     stringstream ss;
     ss << input;
-    string s;
-    std::getline (ss,s);
-    v.push_back(s);
-    format1(v, std::forward<Args>(args)...);
+    v.push_back(ss.str());
+    format1(v, args...);
 }
 
 template<class T, class... Args>
-string format(const T &input, Args&&... args) {
+string format(const T &input, const Args&... args) {
     vector<string> v;
     format1(v, input, args...);
     string s = v[0];
@@ -27,7 +25,6 @@ string format(const T &input, Args&&... args) {
         }
         k++;
     }
-    try{
         for (int i = 0; i < s.size(); i++) {
             string a = "";
             if (s[i] == '{') {
@@ -41,10 +38,6 @@ string format(const T &input, Args&&... args) {
                 }           
             }
         }
-    }
-    catch (const Error& error) {
-        cout << error.message_ << endl;
-    }
     return s;
     
 }

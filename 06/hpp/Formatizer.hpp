@@ -18,9 +18,9 @@ struct Error
 void format1(vector<string> &v);
 
 template<class T, class... Args>
-void format1(vector<string> &v, const T &input, Args&&... args);
+void format1(vector<string> &v, const T &input, const Args&... args);
 
 template<class T, class... Args>
-string format(const T &input, Args&&... args);
+string format(const T &input, const Args&... args);
 
 #include "Formatizer.tpp"

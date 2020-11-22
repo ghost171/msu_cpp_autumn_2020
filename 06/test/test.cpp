@@ -36,15 +36,30 @@ void test3() {
 }
 
 void test4() {
-    auto text = format("{1}{1}{2}{3} = {0}", 4.0, 2);
+    try {
+        auto text = format("{1}{1}{2}{3} = {0}", 4.0, 2);
+    }
+    catch (Error error) {
+        cout << error.message_ << endl;
+    }
 }
 
 void test5() {
-    auto text = format("{1}+{1}{one} = {0}", 2, 1);
+    try {
+        auto text = format("{1}+{1}{one} = {0}", 2, 1);
+    }
+    catch (Error error) {
+        cout << error.message_ << endl;
+    }
 }
 
 void test6() {
-    auto text = format("{1{1}}+{1} = {0}", 2, 1);
+    try {
+        auto text = format("{1{1}}+{1} = {0}", 2, 1);
+    }
+    catch (Error error) {
+        cout << error.message_ << endl;
+    }
 }
 
 void test7() {
@@ -54,8 +69,13 @@ void test7() {
 }
 
 void test8() {
-    string text = format("{1", 2);
-    assert(text == "{1" );
+    try {
+        string text = format("{1", 2);
+        assert(text == "{1" );
+    }
+    catch (Error error) {
+        cout << error.message_ << endl;
+    }
 }
 
 void test9() {
