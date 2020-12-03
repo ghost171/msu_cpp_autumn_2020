@@ -4,7 +4,7 @@
 
 using namespace std;
 
-template <typename T> 
+template<typename T>
 class TAllocator { 
 public:
     template <class U>
@@ -51,7 +51,7 @@ public:
     }
 };
 
-template <typename T> 
+template <typename T,  typename Allocator = TAllocator<T>> 
 class TIterator { 
 private: 
     T* m_pCurrentNode; 
@@ -94,108 +94,131 @@ public:
 
 
 
-template <typename T> 
+template <typename T,  typename Allocator = TAllocator<T>> 
 class TVector {
 private:
     T *Buffer;
     int Capacity;
     int Current;
 
+    void Grow();
+
+    Allocator currentAllocator;
+
 public:
     TVector();
 
-    template <typename C> 
+    TVector(size_t s);
+
+    template <typename C, typename U> 
     friend class TIterator;
-
     
-    TIterator<T> Begin();
+    TIterator<T, Allocator> Begin() const;
 
-    TIterator<T> End(); 
+    TIterator<T, Allocator> End() const; 
 
-    TIterator<T> RBegin();
+    TIterator<T, Allocator> RBegin() const;
 
-    TIterator<T> REnd();
+    TIterator<T, Allocator> REnd() const;
 
-    void PushBack(T data);
-    
-    void EmplaceBack(int index, T value); 
+    void PushBack(const T &data);    
+
+    template<class... Args >
+    void EmplaceBack(Args&&... args);
 
     void Clear();
 
-    bool Empty();
-
-    void Push(int data, int index);
+    bool Empty() const;
  
-    T *Get(int index);
+    T *Get(const int &index) const;
+
+    TVector& operator=(const TVector &arg);
+
+    TVector& operator=(TVector &&arg);
     
-    T operator[](int index);
+    T &operator[](const int &index) const;
+    
+    T operator=(T &value);
+
+    T operator=(const T &value);
+
+    TVector(const TVector &arg);
+
+    TVector(TVector &&arg);
 
     void PopBack();
  
-    int Size();
+    int Size() const;
  
-    int GetCapacity();
+    int GetCapacity() const;
  
-    void Print();
+    void Print() const;
 
-    void Resize(int newSize);
+    void Resize(size_t newSize);
     
     void Reserve(int newCapacity);
 
     ~TVector();
 };
 
-template <typename T>
-void TVector<T>::EmplaceBack(int index, T value) {
-    if (index - 1 > Current) {
-        cout << "You try to assign element which is out of range. It is unacceptable operation." << endl;
-        return;
-    }
-    if (index == Current) {
-        PushBack(value);
-        return;
-    }
-    Buffer[index] = value;
+template<typename T, typename A>
+TVector<T, A> &TVector<T, A>::operator=(const TVector& arg) {
+    Capacity = arg.Capacity;
+    Current = arg.Current;
+    Buffer = arg.Buffer;
+    return *this;
 }
 
-template <typename T> 
-TVector<T>::TVector() {
-    Buffer = new T[1];
-    Capacity = 1;
-    Current = 0;
-} 
+template<typename T, typename A>
+TVector<T, A> &TVector<T, A>::operator=(TVector &&arg) {
+    Capacity = arg.Capacity;
+    Current = arg.Current;
+    std::swap(Buffer, arg.Buffer);
+    return *this;
+}
 
-template <typename T> 
-TIterator<T>::TIterator() : m_pCurrentNode(TVector<T>::Buffer) { } 
+template<typename T, typename A>
+TVector<T, A>::TVector(TVector &&arg) {
+    Capacity = arg.Capacity;
+    Current = arg.Current;
+    Buffer = currentAllocator.Allocate(Capacity);
+    for (int i = 0; i < Current; i++) {
+        Buffer[i] = std::move(arg.Buffer[i]);
+    }
+}
 
-template <typename T> 
-TIterator<T> TVector<T>::Begin() { 
-    return TIterator<T>(Buffer); 
-} 
+template<typename T, typename A>
+TVector<T, A>::TVector(const TVector &arg) {
+    Capacity = arg.Capacity;
+    Current = arg.Current;
+    Buffer = currentAllocator.Allocate(Capacity);
+    for (int i = 0; i < Current; i++) {
+        Buffer[i] = arg.Buffer[i];
+    }
+}
 
-template <typename T> 
-TIterator<T> TVector<T>::End() { 
-    return TIterator<T>(Buffer + Current); 
-} 
+template<typename T, typename A>
+TVector<T, A>::TVector(size_t s) {
+    Capacity  = s + 1;
+    Current = s;
+    Buffer = currentAllocator.Allocate(Capacity);
+    if (Buffer == nullptr) {
+        Current = 0;
+        return;
+    }
+    T *temp = currentAllocator.Allocate(Capacity);
+    currentAllocator.Deallocate(Buffer, Capacity);
+    Buffer = temp;
+}
 
-template <typename T> 
-TIterator<T> TVector<T>::RBegin() { 
-    return End(); 
-} 
-
-template <typename T> 
-TIterator<T> TVector<T>::REnd() { 
-    return Begin(); 
-} 
-
-template <typename T> 
-void TVector<T>::PushBack(T data)
-{
+template<typename T, typename A>
+template<class... Args >
+void TVector<T, A>::EmplaceBack( Args&&... args ) {
+    T data = T(std::move(args...));
     if (Current == Capacity) {
-        T *temp = new T[2 * Capacity];
-
+        T *temp = currentAllocator.Allocate(2 * Capacity);
         for (int i = 0; i < Capacity; i++) {
-            temp[i] = Buffer[i];
+            temp[i] = move(Buffer[i]);
         }
 
         Capacity *= 2;
@@ -206,106 +229,145 @@ void TVector<T>::PushBack(T data)
     Current++;
 }
 
-template <typename T> 
-void TVector<T>::Clear() {
+template<typename T, typename A>
+TVector<T, A>::TVector() : TVector(0) {} 
+
+template<typename T, typename A>
+TIterator<T, A>::TIterator() : m_pCurrentNode(TVector<T, A>::Buffer) { } 
+
+template <typename T, typename A>
+TIterator<T, A> TVector<T, A>::Begin() const {
+    return TIterator<T, A>(Buffer);
+}
+
+template <typename T, typename A>
+TIterator<T, A> TVector<T, A>::End() const {
+    return TIterator<T, A>(Buffer + Current);
+}
+
+template<typename T, typename A>
+TIterator<T, A> TVector<T, A>::RBegin() const {
+    return End();
+} 
+
+template<typename T, typename A>
+TIterator<T, A> TVector<T, A>::REnd() const {
+    return Begin();
+} 
+
+template<typename T, typename A>
+void TVector<T, A>::PushBack(const T &data) {
+    if (Current == Capacity) {
+        T *temp = currentAllocator.Allocate(2 * Capacity);
+        for (int i = 0; i < Capacity; i++) {
+            temp[i] = move(Buffer[i]);
+        }
+        Capacity *= 2;
+        Buffer = temp;
+    }
+    Buffer[Current] = data;
+    Current++;
+}
+
+template<typename T, typename A>
+void TVector<T, A>::Clear() {
     if (Buffer == nullptr) {
         Current = 0;
         return;
     }
     Current = 0;
-    T *temp = new T[Capacity];
-    delete[] Buffer;
+    T *temp = currentAllocator.Allocate(Capacity);
+    currentAllocator.Deallocate(Buffer, Capacity);
     Buffer = temp;
 
 }
 
-template <typename T> 
-bool TVector<T>::Empty() {
+template<typename T, typename A>
+bool TVector<T, A>::Empty() const {
     if (Buffer == nullptr || Capacity == 0 || Current == 0) {
         return true;
     }
     return false;
 }
 
-template <typename T> 
-void TVector<T>::Push(int data, int index)
-{
-
-    if (index == Current)
-        PushBack(data);
-    else
-        Buffer[index] = data;
-}
-
-template <typename T> 
-T *TVector<T>::Get(int index)
-{
-    if (index < Current)
+template<typename T, typename A>
+T *TVector<T, A>::Get(const int &index) const {
+    if (index <= Current)
         return Buffer + index;
-    cout << "Your index is out of range. Exiting..." << endl;
-    
+    throw("Your index is out of range. Exiting...");
     return nullptr;
 }
 
-template <typename T> 
-T TVector<T>::operator[](int index) 
-{ 
+template<typename T, typename A>
+T &TVector<T, A>::operator[] (const int &index) const {
     if (Get(index) == nullptr) {
-        cout << "You try to get value of nullptr pointer. This is unacceptable operation. Returning -1." << endl;
-        return -1;
+        throw("You try to get value of nullptr pointer. This is unacceptable operation. Returning -1.");
+        return *Get(0);
     } else {
         return *Get(index);
     }
 } 
 
-template <typename T> 
-void TVector<T>::PopBack() { 
+template<typename T, typename A>
+void TVector<T, A>::PopBack() { 
     if (Current == 0) {
-        cout << "You try to get element from empty stack. This is unacceptable operation." << endl; 
+        throw("You try to get element from empty stack. This is unacceptable operation.");
         return;
     }
     Current--; 
 }
 
-template <typename T> 
-int TVector<T>::Size() { return Current; }
+template<typename T, typename A>
+int TVector<T, A>::Size() const { return Current; }
 
-template <typename T> 
-int TVector<T>::GetCapacity() { return Capacity; }
+template<typename T, typename A>
+int TVector<T, A>::GetCapacity() const { return Capacity; }
 
-template <typename T> 
-void TVector<T>::Print()
-{
+template<typename T, typename A>
+void TVector<T, A>::Print() const {
     for (int i = 0; i < Current; i++) {
         cout << Buffer[i] << " ";
     }
     cout << endl;
 }
 
-template <typename T> 
-void TVector<T>::Resize(int newSize) {
-    if (newSize < Size) {
-        cout << "Decreasing vector's size is unaccaptable operation. Exiting..." << endl;
-        exit(1);
+template<typename T, typename A>
+void TVector<T, A>::Resize(size_t newSize) {
+    if (newSize < Current) {
+        T *transfer = Buffer;
+        Current = newSize;
+        Buffer = currentAllocator.Allocate(newSize);
+        for (int i = 0; i < newSize; i++) {
+            Buffer[i] = move(transfer[i]);
+        }
+        currentAllocator.Deallocate(transfer, newSize);
+        return;
     }
     int currentSize = Current;
     for (int i = 0; i < (newSize - currentSize); i++) {
-        PushBack(0);
+        PushBack(T());
     }
 }
 
-template <typename T> 
-void TVector<T>::Reserve(int newCapacity) {
+template<typename T, typename A>
+void TVector<T, A>::Reserve(int newCapacity) {
     if (newCapacity < Capacity) {
-        cout << "Decreasing vector's capacity is unaccaptable operation. Exiting..." << endl;
-        exit(1);
+        T *transfer = Buffer;
+        Buffer = currentAllocator.Allocate(newCapacity);
+        for (int i = 0; i < Current; i++) {
+            Buffer[i] = move(transfer[i]);
+        }
+        currentAllocator.Deallocate(transfer, Capacity);
+        Capacity = newCapacity;
+        return;
     }
     Capacity = newCapacity;
+    Buffer = currentAllocator.Allocate(newCapacity);
 }
 
-template <typename T> 
-TVector<T>::~TVector() {
-    delete[] Buffer;
+template<typename T, typename A>
+TVector<T, A>::~TVector() {
+    currentAllocator.Deallocate(Buffer, Capacity);
     Capacity = 0;
     Current = 0;
 }

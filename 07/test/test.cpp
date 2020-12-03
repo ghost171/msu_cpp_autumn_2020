@@ -26,15 +26,20 @@ void test2() {
     a.PushBack(3);
     a.PushBack(4);
     a.PushBack(5);
-    a[5];
+    try {
+        a[5];
+    }
+    catch(const char *a) {
+        cout << a << endl;
+    }
 }
 
 void test3() {
     TVector<string> a;
-    a.PushBack("-1");
+    a.PushBack("1234");
     a.PushBack("2");
-    a.PushBack("a");
     a.PushBack("abcd");
+    a.PushBack("bcf");
     assert(a.Empty() == 0);
     assert(a.GetCapacity() == 4);
 }
@@ -51,11 +56,11 @@ void test4() {
 }
 
 void test5() {
-    TVector<float> a;
-    a.PushBack(-0.3);
-    a.PushBack(0.3);
-    a.PushBack(0.3);
-    a.PushBack(4.2);
+    TVector<int> a;
+    a.PushBack(4);
+    a.PushBack(2);
+    a.PushBack(3);
+    a.PushBack(1);
     a.Clear();
     assert(a.Empty() == 1);
     assert(a.Size() == 0);
@@ -88,12 +93,54 @@ void test8() {
     a.PushBack(3);
     a.PushBack(4);
     a.PushBack(5);
-    a.EmplaceBack(1, 400);
-    a.EmplaceBack(5, 300);
+    a.EmplaceBack(400);
+    a.EmplaceBack(300);
     for (TIterator<int> i = a.Begin(); i != a.End(); ++i) { 
         cout << *i << " "; 
     }
-    assert(a[1] == 400 && a[5] == 300);
+}
+
+void test9() {
+    TVector<int> a(5);
+    a[4] = 3;
+    assert(a[4] == 3);
+}
+
+void test10() {
+    TVector<int> a;
+    a.PushBack(300);
+    a.PushBack(2);
+    a.PushBack(3);
+    a.PushBack(4);
+    a.PushBack(5);
+    TVector<int> b(a);
+    assert(a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3] && a[4] == b[4]);
+}
+
+void test11() {
+    TVector<int> a;
+    a.PushBack(300);
+    a.PushBack(2);
+    a.PushBack(3);
+    a.PushBack(4);
+    a.PushBack(5);
+    a.Resize(3);
+    for (TIterator<int> iterator = a.Begin(); iterator != a.End(); iterator++) { 
+        cout << *iterator << " "; 
+    }
+    cout << endl;
+}
+
+void test12() {
+    TVector<int> a;
+    a.PushBack(300);
+    a.PushBack(2);
+    a.PushBack(3);
+    a.Resize(6);
+    for (TIterator<int> iterator = a.Begin(); iterator != a.End(); iterator++) { 
+        cout << *iterator << " "; 
+    }
+    cout << endl;
 }
 
 int main()
@@ -121,6 +168,18 @@ int main()
     cout << "OK" << endl;
     cout << "Test8 "; 
     test8();
+    cout << "OK" << endl;
+    cout << "Test9 "; 
+    test9();
+    cout << "OK" << endl;
+    cout << "Test10 "; 
+    test10();
+    cout << "OK" << endl;
+    cout << "Test11 "; 
+    test11();
+    cout << "OK" << endl;
+    cout << "Test11 "; 
+    test12();
     cout << "OK" << endl;
     return 0;
 }
