@@ -379,9 +379,6 @@ void TVector<T, A>::Reserve(size_t newCapacity) {
     if (newCapacity <= Capacity) {
         return;
     }
-    /*T *transfer = Buffer;
-    Buffer = currentAllocator.Allocate(newCapacity);
-    currentAllocator.Deallocate(transfer, Capacity);*/
     *this = TVector(newCapacity + 1);
     Capacity = newCapacity;
 }
