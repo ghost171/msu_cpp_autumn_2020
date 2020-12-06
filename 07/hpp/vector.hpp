@@ -140,7 +140,7 @@ public:
 
     bool Empty() const;
  
-    T *Get(const size_t &index) const;
+    T *Get(const size_t index) const;
 
     TVector& operator=(const TVector &arg);
 
@@ -173,7 +173,7 @@ TVector<T, A> &TVector<T, A>::operator=(const TVector& arg) {
     Current = arg.Current;
     T *current = Buffer;
     Buffer = arg.Buffer;
-    delete[] current;
+    currentAllocator.Deallocate(current, Capacity);
     return *this;
 }
 
@@ -311,7 +311,7 @@ bool TVector<T, A>::Empty() const {
 }
 
 template<typename T, typename A>
-T *TVector<T, A>::Get(const size_t &index) const {
+T *TVector<T, A>::Get(const size_t index) const {
     if (index <= Current)
         return Buffer + index;
     throw(Error("Your index is out of range. Exiting...", __FILE__, __LINE__));
