@@ -4,6 +4,14 @@
 
 using namespace std;
 
+struct Error
+{
+    string message_;
+    const char *fileName_;
+    int line_;
+    Error(const string& message, const char *fileName, int line) : message_(message), fileName_(fileName), line_(line) {}
+};
+
 template<typename T>
 class TAllocator { 
 public:
@@ -121,7 +129,9 @@ public:
 
     TIterator<T, Allocator> REnd() const;
 
-    void PushBack(const T &data);    
+    void PushBack(const T &data);   
+
+    void PushBack(T &&data);     
 
     template<class... Args >
     void EmplaceBack(Args&&... args);
@@ -130,17 +140,13 @@ public:
 
     bool Empty() const;
  
-    T *Get(const int &index) const;
+    T *Get(const size_t &index) const;
 
     TVector& operator=(const TVector &arg);
 
     TVector& operator=(TVector &&arg);
     
-    T &operator[](const int &index) const;
-    
-    T operator=(T &value);
-
-    T operator=(const T &value);
+    T &operator[](const size_t index) const;
 
     TVector(const TVector &arg);
 
@@ -156,7 +162,7 @@ public:
 
     void Resize(size_t newSize);
     
-    void Reserve(int newCapacity);
+    void Reserve(size_t newCapacity);
 
     ~TVector();
 };
@@ -165,7 +171,9 @@ template<typename T, typename A>
 TVector<T, A> &TVector<T, A>::operator=(const TVector& arg) {
     Capacity = arg.Capacity;
     Current = arg.Current;
+    T *current = Buffer;
     Buffer = arg.Buffer;
+    delete[] current;
     return *this;
 }
 
@@ -182,9 +190,7 @@ TVector<T, A>::TVector(TVector &&arg) {
     Capacity = arg.Capacity;
     Current = arg.Current;
     Buffer = currentAllocator.Allocate(Capacity);
-    for (int i = 0; i < Current; i++) {
-        Buffer[i] = std::move(arg.Buffer[i]);
-    }
+    swap(Buffer, arg.Buffer);
 }
 
 template<typename T, typename A>
@@ -270,6 +276,20 @@ void TVector<T, A>::PushBack(const T &data) {
 }
 
 template<typename T, typename A>
+void TVector<T, A>::PushBack(T &&data) {
+    if (Current == Capacity) {
+        T *temp = currentAllocator.Allocate(2 * Capacity);
+        for (int i = 0; i < Capacity; i++) {
+            temp[i] = move(Buffer[i]);
+        }
+        Capacity *= 2;
+        Buffer = temp;
+    }
+    Buffer[Current] = data;
+    Current++;
+}
+
+template<typename T, typename A>
 void TVector<T, A>::Clear() {
     if (Buffer == nullptr) {
         Current = 0;
@@ -291,17 +311,17 @@ bool TVector<T, A>::Empty() const {
 }
 
 template<typename T, typename A>
-T *TVector<T, A>::Get(const int &index) const {
+T *TVector<T, A>::Get(const size_t &index) const {
     if (index <= Current)
         return Buffer + index;
-    throw("Your index is out of range. Exiting...");
+    throw(Error("Your index is out of range. Exiting...", __FILE__, __LINE__));
     return nullptr;
 }
 
 template<typename T, typename A>
-T &TVector<T, A>::operator[] (const int &index) const {
+T &TVector<T, A>::operator[] (const size_t index) const {
     if (Get(index) == nullptr) {
-        throw("You try to get value of nullptr pointer. This is unacceptable operation. Returning -1.");
+        throw(Error("You try to get value of nullptr pointer. This is unacceptable operation. Returning -1.", __FILE__, __LINE__));
         return *Get(0);
     } else {
         return *Get(index);
@@ -311,7 +331,7 @@ T &TVector<T, A>::operator[] (const int &index) const {
 template<typename T, typename A>
 void TVector<T, A>::PopBack() { 
     if (Current == 0) {
-        throw("You try to get element from empty stack. This is unacceptable operation.");
+        throw(Error("You try to get element from empty stack. This is unacceptable operation.", __FILE__, __LINE__));
         return;
     }
     Current--; 
@@ -333,7 +353,7 @@ void TVector<T, A>::Print() const {
 
 template<typename T, typename A>
 void TVector<T, A>::Resize(size_t newSize) {
-    if (newSize < Current) {
+    if (newSize < Capacity) {
         T *transfer = Buffer;
         Current = newSize;
         Buffer = currentAllocator.Allocate(newSize);
@@ -343,6 +363,11 @@ void TVector<T, A>::Resize(size_t newSize) {
         currentAllocator.Deallocate(transfer, newSize);
         return;
     }
+
+    if (newSize < Current) {
+        Current = newSize;
+    }
+
     int currentSize = Current;
     for (int i = 0; i < (newSize - currentSize); i++) {
         PushBack(T());
@@ -350,19 +375,15 @@ void TVector<T, A>::Resize(size_t newSize) {
 }
 
 template<typename T, typename A>
-void TVector<T, A>::Reserve(int newCapacity) {
-    if (newCapacity < Capacity) {
-        T *transfer = Buffer;
-        Buffer = currentAllocator.Allocate(newCapacity);
-        for (int i = 0; i < Current; i++) {
-            Buffer[i] = move(transfer[i]);
-        }
-        currentAllocator.Deallocate(transfer, Capacity);
-        Capacity = newCapacity;
+void TVector<T, A>::Reserve(size_t newCapacity) {
+    if (newCapacity <= Capacity) {
         return;
     }
-    Capacity = newCapacity;
+    /*T *transfer = Buffer;
     Buffer = currentAllocator.Allocate(newCapacity);
+    currentAllocator.Deallocate(transfer, Capacity);*/
+    *this = TVector(newCapacity + 1);
+    Capacity = newCapacity;
 }
 
 template<typename T, typename A>

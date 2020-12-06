@@ -36,12 +36,15 @@ void test2() {
 
 void test3() {
     TVector<string> a;
+    string s = "push";
     a.PushBack("1234");
     a.PushBack("2");
     a.PushBack("abcd");
     a.PushBack("bcf");
-    assert(a.Empty() == 0);
-    assert(a.GetCapacity() == 4);
+    a.PushBack(s);
+    assert(a[4] == "push");
+    assert(!a.Empty());
+    assert(a.Size() == 5);
 }
 
 void test4() {
@@ -51,7 +54,7 @@ void test4() {
     a.PushBack(2);
     a.PushBack(0.3);
     a.PushBack(4.2);
-    assert(a.Empty() == 0);
+    assert(!a.Empty());
     assert(a.GetCapacity() == 10);
 }
 
@@ -143,6 +146,17 @@ void test12() {
     cout << endl;
 }
 
+void test13() {
+    TVector<int> a;
+    try {
+        a.PopBack();
+    }
+    catch(const Error &error) {
+        cout << error.message_ << endl;
+    }
+
+}
+
 int main()
 {
     cout << "Test1 "; 
@@ -178,8 +192,11 @@ int main()
     cout << "Test11 "; 
     test11();
     cout << "OK" << endl;
-    cout << "Test11 "; 
+    cout << "Test12 "; 
     test12();
+    cout << "OK" << endl;
+    cout << "Test13 "; 
+    test13();
     cout << "OK" << endl;
     return 0;
 }
