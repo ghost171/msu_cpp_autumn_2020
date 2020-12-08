@@ -35,6 +35,21 @@ struct Data1 {
     }
 };
 
+struct Data2 {
+    uint64_t a;
+    uint64_t b;
+    uint64_t c;
+    template <class TSerializer>
+    Error Serialize(TSerializer &serializer) {
+        return serializer(a, b, c);
+    }
+
+    template <class TDeserializer>
+    Error TDeserialize(TDeserializer &deserializer) {
+        return deserializer(a, b, c);
+    }
+};
+
 struct TBool {
     bool value;
     Error Serialize(TSerializer &serializer) {
@@ -97,6 +112,18 @@ void test4() {
     assert(err == Error::CorruptedArchive);
 }
 
+void test5() {
+    Data x {3, false, 5};
+    Data2 y {1, 1, 1};
+    stringstream stream;
+    TSerializer serializer(stream);
+    serializer.Save(x);
+    TDeserializer deserializer(stream);
+    const Error err = deserializer.Load(y);
+
+    
+}
+
 int main() {
     cout << "test1 ";
     test1();
@@ -109,6 +136,9 @@ int main() {
     cout << "OK" << endl;
     cout << "test4 ";
     test4();
+    cout << "OK" << endl;
+    cout << "test5 ";
+    test5();
     cout << "OK" << endl;
     return 0;
 }

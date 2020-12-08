@@ -11,6 +11,8 @@ enum class Error {
     CorruptedArchive
 };
 
+
+
 bool is_number(const std::string& s)
 {
     std::string::const_iterator it = s.begin();
@@ -22,36 +24,30 @@ class TSerializer {
     static constexpr char Separator = ' ';
     ostream &CurrentStream;
 
+    Error TakeInt(const bool current);
+
     template <class... Args>
-    Error Process(uint64_t &current, Args&&... args) {
+    Error Process(const uint64_t current, const Args&... args) {
         CurrentStream << current << Separator;
         Process(args...);
         return Error::NoError;
     }
 
     template <class... Args>
-    Error Process(bool &current) {
-        if (current) {
-            CurrentStream << "true" << Separator;
-        } else {
-            CurrentStream << "false" << Separator;
-        }
+    Error Process(const bool current) {
+        TakeInt(current);
         return Error::NoError;
     }
 
     template <class... Args>
-    Error Process(uint64_t &current) {
+    Error Process(const uint64_t current) {
         CurrentStream << current << Separator;
         return Error::NoError;
     }
 
     template <class... Args>
-    Error Process(bool &current, Args&&... args) {
-        if (current) {
-            CurrentStream << "true" << Separator;
-        } else {
-            CurrentStream << "false" << Separator;
-        }
+    Error Process(const bool current, const Args&... args) {
+        TakeInt(current);
         Process(args...);
         return Error::NoError;
     }
@@ -65,28 +61,27 @@ public:
     }
 
     template<class... Args>
-    Error operator()(Args&&... args) {
+    Error operator()(const Args&... args) {
         return TSerializer::Process(args...);
     }
-
 };
 
 class TDeserializer {
 private:
     istream &CurrentStream;
 
+    Error getBool(bool &current, string text);
+
+    Error getInt(uint64_t &current, string text);
+
     template<class... Args>
-    Error Process(bool &current, Args&&... args) {
+    Error Process(bool &current, Args&... args) {
         string text;
         CurrentStream >> text;
-        if (text == "true") {
-            current = true;
-        } else if (text == "false") {
-            current =  false;
-        } else {
+        Error error = getBool(current, text);
+        if (error == Error::CorruptedArchive) {
             return Error::CorruptedArchive;
         }
-
         return Process(args...);
     }
 
@@ -94,36 +89,22 @@ private:
     Error Process(bool &current) {
         string text;
         CurrentStream >> text;
-        if (text == "true") {
-            current = true;
-        } else if (text == "false") {
-            current =  false;
-        } else {
-            return Error::CorruptedArchive;
-        }
-
-        return Error::NoError;
+        return getBool(current, text);
     }
 
     template<class... Args>
     Error Process(uint64_t &current) {
         string text;
         CurrentStream >> text;
-        if (is_number(text)) {
-            current = stoi(text);
-        } else {
-            return Error::CorruptedArchive;
-        }
-        return Error::NoError;
+        return getInt(current, text);
     }
 
     template<class... Args>
-    Error Process(uint64_t &current, Args&&... args) {
+    Error Process(uint64_t &current, Args&... args) {
         string text;
         CurrentStream >> text;
-        if (is_number(text)) {
-            current = stoi(text);
-        } else {
+        Error error = getInt(current, text);
+        if (error == Error::CorruptedArchive) {
             return Error::CorruptedArchive;
         }
         return Process(args...);
@@ -138,7 +119,47 @@ public:
     }
 
     template<class... Args>
-    Error operator()(Args&&... args) {
+    Error operator()(Args&... args) {
         return TDeserializer::Process(args...);
     }
 };
+
+Error TSerializer::TakeInt(const bool current) {
+    if (current) {
+        CurrentStream << "true" << Separator;
+    } else {
+        CurrentStream << "false" << Separator;
+    }
+    return Error::NoError;
+}
+
+Error TDeserializer::getBool(bool &current, string text) {
+    if (text == "true") {
+        current = true;
+    } else if (text == "false") {
+        current =  false;
+    } else {
+        return Error::CorruptedArchive;
+    }
+    return Error::NoError;
+}
+
+Error TDeserializer::getInt(uint64_t &current, string text) {
+    if (is_number(text)) {
+        try {
+            current = static_cast<uint64_t>(stoi(text));
+        }
+        catch (std::invalid_argument &exc) {
+            cout << "Your argument contsins errors. It is possible connnects with wrong type of argument. Check your arguments list to serializer and try again." << endl;
+            cout << exc.what() << endl;
+            return Error::CorruptedArchive;
+        }   
+        catch (std::out_of_range &exc) {
+            cout << "Serializer argument is out of range." << endl;
+            cout << exc.what() << endl;
+        }
+    } else {
+        return Error::CorruptedArchive;
+    }
+    return Error::NoError;
+}
