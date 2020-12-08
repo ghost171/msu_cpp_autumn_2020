@@ -24,7 +24,7 @@ class TSerializer {
     static constexpr char Separator = ' ';
     ostream &CurrentStream;
 
-    Error TakeInt(const bool current);
+    Error TakeBool(const bool current);
 
     template <class... Args>
     Error Process(const uint64_t current, const Args&... args) {
@@ -35,7 +35,7 @@ class TSerializer {
 
     template <class... Args>
     Error Process(const bool current) {
-        TakeInt(current);
+        TakeBool(current);
         return Error::NoError;
     }
 
@@ -47,7 +47,7 @@ class TSerializer {
 
     template <class... Args>
     Error Process(const bool current, const Args&... args) {
-        TakeInt(current);
+        TakeBool(current);
         Process(args...);
         return Error::NoError;
     }
@@ -124,7 +124,7 @@ public:
     }
 };
 
-Error TSerializer::TakeInt(const bool current) {
+Error TSerializer::TakeBool(const bool current) {
     if (current) {
         CurrentStream << "true" << Separator;
     } else {
