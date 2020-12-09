@@ -70,9 +70,9 @@ class TDeserializer {
 private:
     istream &CurrentStream;
 
-    Error getBool(bool &current, string text);
+    Error getBool(bool &current, string &text);
 
-    Error getInt(uint64_t &current, string text);
+    Error getInt(uint64_t &current, string &text);
 
     template<class... Args>
     Error Process(bool &current, Args&... args) {
@@ -133,7 +133,7 @@ Error TSerializer::TakeBool(const bool current) {
     return Error::NoError;
 }
 
-Error TDeserializer::getBool(bool &current, string text) {
+Error TDeserializer::getBool(bool &current, string &text) {
     if (text == "true") {
         current = true;
     } else if (text == "false") {
@@ -144,20 +144,16 @@ Error TDeserializer::getBool(bool &current, string text) {
     return Error::NoError;
 }
 
-Error TDeserializer::getInt(uint64_t &current, string text) {
+Error TDeserializer::getInt(uint64_t &current, string &text) {
     if (is_number(text)) {
         try {
-            current = static_cast<uint64_t>(stoi(text));
+            current = stoull(text);
         }
-        catch (std::invalid_argument &exc) {
+        catch (const std::logic_error &exc) {
             cout << "Your argument contsins errors. It is possible connnects with wrong type of argument. Check your arguments list to serializer and try again." << endl;
             cout << exc.what() << endl;
             return Error::CorruptedArchive;
         }   
-        catch (std::out_of_range &exc) {
-            cout << "Serializer argument is out of range." << endl;
-            cout << exc.what() << endl;
-        }
     } else {
         return Error::CorruptedArchive;
     }
