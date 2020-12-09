@@ -70,9 +70,9 @@ class TDeserializer {
 private:
     istream &CurrentStream;
 
-    Error getBool(bool &current, string &text);
+    Error getBool(bool &current, const string &text);
 
-    Error getInt(uint64_t &current, string &text);
+    Error getInt(uint64_t &current, const string &text);
 
     template<class... Args>
     Error Process(bool &current, Args&... args) {
@@ -133,7 +133,7 @@ Error TSerializer::TakeBool(const bool current) {
     return Error::NoError;
 }
 
-Error TDeserializer::getBool(bool &current, string &text) {
+Error TDeserializer::getBool(bool &current, const string &text) {
     if (text == "true") {
         current = true;
     } else if (text == "false") {
@@ -144,7 +144,7 @@ Error TDeserializer::getBool(bool &current, string &text) {
     return Error::NoError;
 }
 
-Error TDeserializer::getInt(uint64_t &current, string &text) {
+Error TDeserializer::getInt(uint64_t &current, const string &text) {
     if (is_number(text)) {
         try {
             current = stoull(text);
