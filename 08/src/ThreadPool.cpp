@@ -11,46 +11,40 @@
 
 using namespace std;
 
-void TThreadPool::ShutDown() {
-        Terminate = true;
-        Condition.notify_all();
-        for (thread &thread : ThreadPool) {
-            thread.join();
-        }
-        ThreadPool.clear();
-        Stopped = true;
-    }
-
-void TThreadPool::Runner() {
-    function<void()> task;
-    while (true) {
+void TThreadPool::Runner()
+{
+    while(true) {
+        function<void()> task;
         {
-            unique_lock<mutex> lock(TasksMutex);
-            Condition.wait(lock, [this] { return !Tasks.empty() || Terminate; });
-            if (Terminate && Tasks.empty()) {
+            unique_lock<std::mutex> lock(TasksMutex);
+            Condition.wait(lock, [this] { return (Stopped || !Tasks.empty());});
+            if (Stopped && Tasks.empty()) {
                 return;
             }
-            task = Tasks.front();
+            task = move(Tasks.front());
             Tasks.pop();
         }
-        try {
-            task();
-        } catch (runtime_error &ex) {
-            cout << "at " << this_thread::get_id() << " " << ex.what() << endl;
-        }
+        task();
     }
 }
 
 TThreadPool::TThreadPool(int threads) {
-    Terminate = false;
     Stopped = false;
-    for (int i = 0; i < threads; i++) {
+    for (int i = 0; i < threads; i++)
+    {
         ThreadPool.emplace_back(thread(&TThreadPool::Runner, this));
     }
 }
 
-TThreadPool::~TThreadPool() {
-    if (!Stopped) {
-        ShutDown();
+TThreadPool::~TThreadPool()
+{
+    {
+        unique_lock<mutex> lock(TasksMutex);
+        Stopped = true;
     }
+    Condition.notify_all();
+    for (thread &tred : ThreadPool) {
+        tred.join();
+    }
+
 }

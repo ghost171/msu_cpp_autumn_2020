@@ -8,8 +8,8 @@ struct A {};
 
 int foo1(int a) { return a; }
 
-int foo2() {
-    cout << "exec" << endl;
+void foo2() {
+    cout << "exec" << endl; 
 }
 
 void foo3(const A&) {
@@ -32,7 +32,8 @@ void test2() {
 void test3() {
     TThreadPool pool(2);
     auto task1 = (pool.Exec([]() { return "exec3"; }));
-    assert(task1.get() == "exec3");
+    string answer = task1.get();
+    assert(answer == "exec3");
 }
 
 void test4() {
@@ -56,6 +57,18 @@ void test6() {
 
 }
 
+void test7() {
+    TThreadPool pool(9);
+    pool.Exec(foo2);
+    pool.Exec(foo2);
+    pool.Exec(foo2);
+    pool.Exec(foo1, 4);
+    pool.Exec(foo1, 6);
+    pool.Exec(foo3, A());
+    pool.Exec(foo3, A());
+    pool.Exec(foo3, A());
+}
+
 int main() 
 { 
     cout << "Test1 " << endl;
@@ -75,6 +88,9 @@ int main()
     cout << "OK" << endl;
     cout << "Test6 " << endl;
     test6();
+    cout << "OK" << endl;
+    cout << "Test7 " << endl;
+    test7();
     cout << "OK" << endl;
     return 0; 
 } 
